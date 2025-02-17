@@ -1,0 +1,12 @@
+curl -s http://localhost/sitemap.xml | xmllint --format - | grep "<loc>" | sed 's/.*<loc>\(.*\)<\/loc>.*/\1/' > /tmp/urls.txt
+while IFS= read -r url; do
+    echo "Testing URL: $url"
+    http_status=$(curl -o /dev/null -s -w "%{http_code}" "$url")
+    if [ "$http_status" = "200" ]; then
+        echo "✅ $url (Status: $http_status)"
+    else
+        echo "❌ $url (Status: $http_status)"
+    fi
+    sleep 1  # Add a small delay between requests
+done < /tmp/urls.txt
+rm /tmp/urls.txt
